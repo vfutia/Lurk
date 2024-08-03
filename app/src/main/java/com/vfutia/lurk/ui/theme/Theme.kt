@@ -26,6 +26,20 @@ private val LightColorScheme = lightColorScheme(
     secondary = Coral
 )
 
+private val InverseDarkColorScheme = darkColorScheme(
+    background = JetGreen,
+    primary = White,
+    onPrimary = White,
+    onPrimaryContainer = White
+)
+
+private val InverseLightColorScheme = lightColorScheme(
+    background = MyrtleGreen,
+    primary = White,
+    onPrimary = White,
+    onPrimaryContainer = White
+)
+
 @Composable
 fun LurkTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -41,6 +55,25 @@ fun LurkTheme(
 
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
+}
+
+@Composable
+fun LurkInverse(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color is available on Android 12+
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when {
+        darkTheme -> InverseDarkColorScheme
+        else -> InverseLightColorScheme
     }
 
     MaterialTheme(

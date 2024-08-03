@@ -1,14 +1,20 @@
 package com.vfutia.lurk.hilt
 
+import android.content.Context
 import android.content.SharedPreferences
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.vfutia.lurk.data.RedditRepository
+import com.vfutia.lurk.data.RedditRepositoryImpl
 import com.vfutia.lurk.data.network.AuthenticationInterceptor
 import com.vfutia.lurk.data.network.RedditClient
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -21,26 +27,40 @@ import javax.inject.Singleton
     AndroidModule::class
 ])
 @InstallIn(SingletonComponent::class)
-class NetworkModule {
-    @Provides
-    @Singleton
-    fun provideRedditClient(sharedPreferences: SharedPreferences): RedditClient {
-        val client = OkHttpClient.Builder()
-            .addNetworkInterceptor(HttpLoggingInterceptor().apply {
-                setLevel(HttpLoggingInterceptor.Level.BODY)
-            })
-            .addNetworkInterceptor(AuthenticationInterceptor(sharedPreferences))
-            .build()
+abstract class NetworkModule {
+    companion object {
+        @Provides
+        fun provideAuthenticationInterceptor(
+            @ApplicationContext context: Context,
+            sharedPreferences: SharedPreferences
+        ): AuthenticationInterceptor = AuthenticationInterceptor(context, sharedPreferences)
 
-        val objectMapper = ObjectMapper()
-            .registerKotlinModule()
-            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+        @Provides
+        @Singleton
+        fun provideRedditClient(
+            authenticationInterceptor: AuthenticationInterceptor
+        ): RedditClient {
+            val client = OkHttpClient.Builder()
+                .addNetworkInterceptor(HttpLoggingInterceptor().apply {
+                    setLevel(HttpLoggingInterceptor.Level.BODY)
+                })
+                .addNetworkInterceptor(authenticationInterceptor)
+                .build()
 
-        return Retrofit.Builder()
-            .baseUrl("https://www.reddit.com/api/")
-            .addConverterFactory(JacksonConverterFactory.create(objectMapper))
-            .client(client)
-            .build()
-            .create(RedditClient::class.java)
+            val objectMapper = ObjectMapper()
+                .registerKotlinModule()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+
+            return Retrofit.Builder()
+                .baseUrl("https://www.reddit.com/")
+                .addConverterFactory(JacksonConverterFactory.create(objectMapper))
+                .client(client)
+                .build()
+                .create(RedditClient::class.java)
+        }
     }
+
+    @Binds
+    abstract fun provideRedditRepository(redditRepositoryImpl: RedditRepositoryImpl): RedditRepository
 }

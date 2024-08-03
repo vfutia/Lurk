@@ -5,26 +5,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.vfutia.lurk.MainActivity
+import com.vfutia.lurk.subreddit.SubredditActivity
 import com.vfutia.lurk.R
-import com.vfutia.lurk.composable.BaseScreen
-import com.vfutia.lurk.ui.theme.LurkTheme
-import com.vfutia.lurk.ui.theme.SplashTheme
+import com.vfutia.lurk.ui.theme.LurkInverse
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +43,7 @@ class SplashActivity : ComponentActivity() {
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
 
-            SplashTheme {
+            LurkInverse {
                 Scaffold { padding ->
                     Box (
                         modifier = Modifier
@@ -85,6 +80,6 @@ class SplashActivity : ComponentActivity() {
 
     private fun proceedToActivity() {
         finish()
-        startActivity(MainActivity.launchIntent(this@SplashActivity))
+        startActivity(SubredditActivity.launchIntent(this@SplashActivity))
     }
 }

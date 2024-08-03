@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vfutia.lurk.data.RedditRepository
 import com.vfutia.lurk.data.network.RedditClient
 import com.vfutia.lurk.extension.putToken
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,11 +22,11 @@ import kotlin.io.path.Path
 
 @HiltViewModel
 class SplashViewModel @Inject constructor (
-    private val redditClient: RedditClient,
+    private val redditRepository: RedditRepository,
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(SplashState()) // Initial value
+    private val _state = MutableStateFlow(SplashState())
     val state: StateFlow<SplashState> = _state.asStateFlow()
 
     suspend fun fetchAccessToken() = viewModelScope.async(Dispatchers.IO) {
@@ -35,7 +36,7 @@ class SplashViewModel @Inject constructor (
         )}
 
         try {
-            redditClient.fetchAccessToken(deviceId = UUID.randomUUID().toString()).apply {
+            redditRepository.fetchAccessToken(deviceId = UUID.randomUUID().toString()).apply {
                 sharedPreferences.putToken(accessToken)
                 _state.update { current -> current.copy(fetchSuccess = true) }
             }
