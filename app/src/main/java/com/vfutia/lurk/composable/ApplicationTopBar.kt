@@ -7,6 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -17,50 +18,48 @@ import com.vfutia.lurk.ui.theme.LurkTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApplicationTopBar(title: String, allowBackNavigation: Boolean = true) {
-    LurkTheme {
-        TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
-            navigationIcon = {
-                if (allowBackNavigation) {
-                    IconButton(onClick = {  }) {
-                        Icon(
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+        navigationIcon = {
+            if (allowBackNavigation) {
+                IconButton(onClick = {  }) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
                 }
-            },
-            title = {
-                Text(title)
             }
-        )
+        },
+        title = {
+            Text(title)
+        }
+    )
+}
+
+@Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Full", showSystemUi = true, showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_UNDEFINED)
+@Composable
+fun ApplicationTopBarPreview() {
+    LurkTheme {
+        Surface {
+            ApplicationTopBar(title = "Top Bar Preview")
+        }
     }
 }
 
-@Preview(showSystemUi = true, showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Light Mode No Back", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Dark Mode No Back", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Full No Back", showSystemUi = true, showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_UNDEFINED)
 @Composable
-fun ApplicationTopBarPreview() {
-    ApplicationTopBar(title = "Top Bar Preview")
-}
-
-@Preview(showSystemUi = true, showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ApplicationTopBarDarkPreview() {
-    ApplicationTopBar(title = "Top Bar Preview")
-}
-
-@Preview(showSystemUi = true, showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Composable
-fun ApplicationTopBarNoBackNavPreview() {
-    ApplicationTopBar(title = "Top Bar Preview", allowBackNavigation = false)
-}
-
-@Preview(showSystemUi = true, showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ApplicationTopBarNoBackNavDarkPreview() {
-    ApplicationTopBar(title = "Top Bar Preview", allowBackNavigation = false)
+fun ApplicationTopBarNoBackPreview() {
+    LurkTheme {
+        Surface {
+            ApplicationTopBar(title = "Top Bar Preview", allowBackNavigation = false)
+        }
+    }
 }

@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.coil.compose)
     kapt(libs.hilt.kapt)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

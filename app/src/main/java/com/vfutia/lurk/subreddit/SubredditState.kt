@@ -1,9 +1,10 @@
 package com.vfutia.lurk.subreddit
 
 import com.vfutia.lurk.model.Post
+import com.vfutia.lurk.model.Subreddit
 
 data class SubredditState (
-    var currentSubreddit: String = "news",
+    var subreddit: Subreddit? = null,
     var isLoadingFirstLoadPage: Boolean = true,
     var isLoadingNextPage: Boolean = false,
     var hasLoadError: Boolean = false,

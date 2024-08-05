@@ -3,6 +3,8 @@ package com.vfutia.lurk.subreddit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vfutia.lurk.data.RedditRepository
+import com.vfutia.lurk.model.ListingType
+import com.vfutia.lurk.model.Subreddit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,17 +22,27 @@ class SubredditViewModel @Inject constructor (
     private val _state = MutableStateFlow(SubredditState())
     val state: StateFlow<SubredditState> = _state.asStateFlow()
 
-    fun fetchPage(subreddit: String) = viewModelScope.launch(Dispatchers.IO) {
+    fun fetchSubreddit(subreddit: String) = viewModelScope.launch(Dispatchers.IO) {
+        val currentSubreddit = redditRepository.fetchSubreddit(subreddit)
+
         _state.update { current -> current.copy(
-            currentSubreddit = subreddit,
+            subreddit = currentSubreddit
+        )}
+    }
+
+    fun fetchPage(subreddit: String?) = viewModelScope.launch(Dispatchers.IO) {
+        _state.update { current -> current.copy(
             isLoadingFirstLoadPage = current.posts.isEmpty(),
             isLoadingNextPage = current.posts.isNotEmpty(),
             hasLoadError = false
         )}
 
         try {
-            val page = redditRepository.fetchPosts(subreddit)
-
+            val page = if (subreddit == null) {
+                redditRepository.fetchFrontPage(listingType = ListingType.Hot, after = state.value.after)
+            } else {
+                redditRepository.fetchPosts(subreddit, after = state.value.after)
+            }
 
             _state.update { current ->
                 val updatedPosts = current.posts.toMutableList().apply { addAll(page.posts) }
@@ -39,13 +51,12 @@ class SubredditViewModel @Inject constructor (
                     isLoadingFirstLoadPage = false,
                     isLoadingNextPage = false,
                     hasLoadError = false,
-                    posts = updatedPosts
+                    posts = updatedPosts,
+                    after = page.after
                 )
             }
         } catch (e: Exception) {
-            _state.update { current -> current.copy(
-                hasLoadError = true
-            )}
+            _state.update { current -> current.copy(hasLoadError = true)}
         }
     }
 }

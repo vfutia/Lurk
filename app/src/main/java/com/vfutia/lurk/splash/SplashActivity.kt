@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.vfutia.lurk.subreddit.SubredditActivity
 import com.vfutia.lurk.R
+import com.vfutia.lurk.composable.Loader
 import com.vfutia.lurk.ui.theme.LurkInverse
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -59,7 +60,7 @@ class SplashActivity : ComponentActivity() {
                                 }
                             }
                             state.fetchSuccess -> proceedToActivity()
-                            else -> CircularProgressIndicator(modifier = Modifier
+                            else -> Loader(modifier = Modifier
                                 .align(Alignment.Center)
                             )
                         }
