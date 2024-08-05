@@ -26,7 +26,7 @@ class SubredditViewModel @Inject constructor (
         val currentSubreddit = redditRepository.fetchSubreddit(subreddit)
 
         _state.update { current -> current.copy(
-            subreddit = currentSubreddit
+            subreddit = currentSubreddit,
         )}
     }
 

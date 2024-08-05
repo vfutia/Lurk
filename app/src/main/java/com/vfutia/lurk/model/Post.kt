@@ -1,6 +1,6 @@
 package com.vfutia.lurk.model
 
-data class Post (
+class Post (
     val id: String,
     val title: String,
     val subreddit: String,
@@ -8,7 +8,7 @@ data class Post (
     val ups: Int,
     val isMeta: Boolean,
     val score: Int,
-    val created: Long,
+    created: Long,
     val pinned: Boolean,
     val over18: Boolean,
     val author: String,
@@ -17,4 +17,10 @@ data class Post (
     val preview: Preview?,
     val numComments: Int,
     val thumbnail: String?
-)
+) {
+    //This gets returned to us in seconds.  Convert to millis.
+    val created: Long = created
+        get() {
+            return field * 1000
+        }
+}

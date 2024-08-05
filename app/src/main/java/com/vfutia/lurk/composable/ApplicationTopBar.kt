@@ -1,8 +1,10 @@
 package com.vfutia.lurk.composable
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,23 +19,42 @@ import com.vfutia.lurk.ui.theme.LurkTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApplicationTopBar(title: String, allowBackNavigation: Boolean = true) {
+fun ApplicationTopBar(
+    title: String,
+    allowBackNavigation: Boolean = true,
+    showMenu: Boolean = false,
+    actions: @Composable RowScope.() -> Unit = { },
+    onBackClicked: () -> Unit = { },
+    onMenuClicked: () -> Unit = { }
+) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
         ),
         navigationIcon = {
-            if (allowBackNavigation) {
-                IconButton(onClick = {  }) {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
+            when {
+                allowBackNavigation -> {
+                    IconButton(onClick = onBackClicked) {
+                        Icon(
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+                showMenu -> {
+                    IconButton(onClick = onMenuClicked) {
+                        Icon(
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Menu"
+                        )
+                    }
                 }
             }
         },
+        actions = actions,
         title = {
             Text(title)
         }
