@@ -1,5 +1,6 @@
 package com.vfutia.lurk.extension
 
+import android.net.Uri
 import java.util.Locale
 
 fun Int.toUpvoteString(): String {
@@ -8,5 +9,18 @@ fun Int.toUpvoteString(): String {
 
     } else {
         this.toString()
+    }
+}
+
+fun String?.isValidUrl(): Boolean {
+    return try {
+        if (this.isNullOrBlank()) {
+            false
+        } else {
+            val scheme = Uri.parse(this).scheme
+            return scheme?.contains("http") ?: false
+        }
+    } catch (e: Exception) {
+        false
     }
 }

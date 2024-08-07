@@ -7,4 +7,5 @@
     <dimen name="loader_circle_radius">8dp</dimen>
     <dimen name="post_icon_size">18dp</dimen>
     <dimen name="divider_thickness">1dp</dimen>
+    <dimen name="thumbnail_size">64dp</dimen>
 </resources>

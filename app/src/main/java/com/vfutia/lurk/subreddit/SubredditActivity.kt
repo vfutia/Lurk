@@ -167,6 +167,7 @@ private fun PostList(
         state.posts.forEach() { post ->
             item {
                 MinimalPostContainer(
+                    isFrontPage = subreddit == null,
                     onSubredditClick = onSubredditClick,
                     post = post
                 )
