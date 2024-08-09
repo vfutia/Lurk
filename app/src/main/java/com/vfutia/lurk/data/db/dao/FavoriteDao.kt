@@ -7,7 +7,7 @@ import androidx.room.Query
 import com.vfutia.lurk.model.Favorite
 
 @Dao
-interface FavoriteDao {
+internal interface FavoriteDao {
     @Query("SELECT * FROM favorite ORDER BY subreddit ASC")
     fun getAll(): List<Favorite>
 

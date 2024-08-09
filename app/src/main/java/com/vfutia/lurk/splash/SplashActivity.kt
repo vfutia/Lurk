@@ -1,14 +1,10 @@
 package com.vfutia.lurk.splash
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
@@ -17,9 +13,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.vfutia.lurk.subreddit.SubredditActivity
+import com.vfutia.lurk.BaseActivity
 import com.vfutia.lurk.R
 import com.vfutia.lurk.composable.Loader
+import com.vfutia.lurk.setContentAndStatusBar
+import com.vfutia.lurk.subreddit.SubredditActivity
 import com.vfutia.lurk.ui.theme.LurkInverse
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
-class SplashActivity : ComponentActivity() {
+class SplashActivity : BaseActivity() {
 
     private val viewModel: SplashViewModel by viewModels()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -40,8 +38,7 @@ class SplashActivity : ComponentActivity() {
 
         fetchAccessToken()
 
-        enableEdgeToEdge()
-        setContent {
+        setContentAndStatusBar {
             val snackbarHostState = remember { SnackbarHostState() }
 
             LurkInverse {

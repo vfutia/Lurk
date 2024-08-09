@@ -48,7 +48,7 @@ fun MinimalPostContainer(
     post: Post,
     onSubredditClick: (String) -> Unit = { },
     onUsernameClick: () -> Unit = { },
-    onPostClick: () -> Unit = { }
+    onPostClick: (Post) -> Unit = { }
 ) {
     val iconInternalMargin = dimensionResource(id = R.dimen.padding_tiny)
     val titleMargin = if (post.thumbnail.isValidUrl()) {
@@ -158,7 +158,7 @@ fun MinimalPostContainer(
 
     ConstraintLayout(
         modifier = Modifier
-            .clickable { onPostClick() }
+            .clickable { onPostClick(post) }
             .fillMaxWidth()
             .padding(dimensionResource(id = R.dimen.padding_medium)),
         constraintSet = constraints
@@ -184,7 +184,7 @@ fun MinimalPostContainer(
         Text(
             modifier = Modifier.layoutId("created"),
             style = Typography.labelMedium,
-            text = TimeAgo.using(post.created)
+            text = TimeAgo.using(post.createdMillis)
         )
 
         Spacer(modifier = Modifier
@@ -281,7 +281,10 @@ fun MinimalPostContainerPreview() {
                         height = 178
                     )))),
                 numComments = 20,
-                thumbnail = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png"
+                thumbnail = "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png",
+                media = null,
+                isSelf = false,
+                selftext = null
             ))
         }
     }

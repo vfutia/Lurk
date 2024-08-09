@@ -14,8 +14,15 @@ class AuthenticationInterceptor(
     private val sharedPreferences: SharedPreferences
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        return chain.proceed( chain.request()
-            .newBuilder()
+        val request = chain.request()
+        val builder = request.newBuilder()
+
+        //Apply the bearer token if we are making any call other than the token request
+        if (!request.url.pathSegments.contains("access_token")) {
+            builder.header("Authorization", "Bearer ${sharedPreferences.getToken()}")
+        }
+
+        return chain.proceed(builder
             .header("User-Agent", buildUserAgent()) //Add user agent!!
             .build())
     }

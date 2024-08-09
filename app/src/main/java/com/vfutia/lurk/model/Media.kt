@@ -4,6 +4,6 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Preview (
-    val images: List<Image> = listOf()
+data class Media (
+    val redditVideo: RedditVideo
 ) : Parcelable

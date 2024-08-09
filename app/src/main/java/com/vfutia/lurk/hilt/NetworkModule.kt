@@ -37,7 +37,7 @@ abstract class NetworkModule {
 
         @Provides
         @Singleton
-        fun provideRedditClient(
+        internal fun provideRedditClient(
             authenticationInterceptor: AuthenticationInterceptor
         ): RedditClient {
             val client = OkHttpClient.Builder()
@@ -53,7 +53,7 @@ abstract class NetworkModule {
                 .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
 
             return Retrofit.Builder()
-                .baseUrl("https://www.reddit.com/")
+                .baseUrl("https://oauth.reddit.com/")
                 .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                 .client(client)
                 .build()
@@ -62,5 +62,5 @@ abstract class NetworkModule {
     }
 
     @Binds
-    abstract fun provideRedditRepository(redditRepositoryImpl: RedditRepositoryImpl): RedditRepository
+    internal abstract fun provideRedditRepository(redditRepositoryImpl: RedditRepositoryImpl): RedditRepository
 }

@@ -9,6 +9,6 @@ import com.vfutia.lurk.model.Subreddit
 @Database(entities = [
     Favorite::class
 ], version = 1)
-abstract class LurkDatabase : RoomDatabase() {
+internal abstract class LurkDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
 }

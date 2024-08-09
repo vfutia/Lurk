@@ -30,7 +30,11 @@
         <activity
             android:name=".subreddit.SubredditActivity"
             android:exported="true"
-            android:label="@string/app_name"
+            android:theme="@style/Theme.Lurk">
+        </activity>
+        <activity
+            android:name=".post.PostActivity"
+            android:exported="true"
             android:theme="@style/Theme.Lurk">
         </activity>
     </application>

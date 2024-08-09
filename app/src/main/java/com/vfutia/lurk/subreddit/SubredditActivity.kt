@@ -3,9 +3,6 @@ package com.vfutia.lurk.subreddit
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
@@ -29,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import com.vfutia.lurk.BaseActivity
 import com.vfutia.lurk.R
 import com.vfutia.lurk.composable.BaseScreen
 import com.vfutia.lurk.composable.Loader
@@ -39,10 +37,13 @@ import com.vfutia.lurk.composable.SubredditBanner
 import com.vfutia.lurk.favorite.FavoriteState
 import com.vfutia.lurk.favorite.FavoriteViewModel
 import com.vfutia.lurk.model.Favorite
+import com.vfutia.lurk.model.Post
+import com.vfutia.lurk.post.PostActivity
+import com.vfutia.lurk.setContentAndStatusBar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SubredditActivity : ComponentActivity() {
+class SubredditActivity : BaseActivity() {
     companion object {
         const val KEY_SUBREDDIT = "subreddit"
 
@@ -58,7 +59,6 @@ class SubredditActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
         val subreddit = intent.extras?.getString(KEY_SUBREDDIT)
 
@@ -67,7 +67,7 @@ class SubredditActivity : ComponentActivity() {
 
         subreddit?.let { subredditViewModel.fetchSubreddit(subreddit) }
 
-        setContent {
+        setContentAndStatusBar {
             val subredditState: SubredditState by subredditViewModel.state.collectAsState()
             val favoriteState: FavoriteState by favoriteViewModel.state.collectAsState()
             val title = subredditState.subreddit?.displayNamePrefixed ?: getString(R.string.app_name)
@@ -92,6 +92,9 @@ class SubredditActivity : ComponentActivity() {
                         state = subredditState,
                         onSubredditClick = { newSubreddit ->
                             startActivity(launchIntent(this, newSubreddit))
+                        },
+                        onPostClick = { post ->
+                            startActivity(PostActivity.launchIntent(this, post))
                         }
                     )
                 }
@@ -148,7 +151,8 @@ private fun PostList(
     subreddit: String? = null,
     viewModel: SubredditViewModel,
     state: SubredditState,
-    onSubredditClick: (String) -> Unit
+    onSubredditClick: (String) -> Unit,
+    onPostClick: (Post) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -169,6 +173,7 @@ private fun PostList(
                 MinimalPostContainer(
                     isFrontPage = subreddit == null,
                     onSubredditClick = onSubredditClick,
+                    onPostClick = onPostClick,
                     post = post
                 )
 

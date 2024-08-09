@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.vfutia.lurk.ui.theme.LurkTheme
 
@@ -56,7 +57,11 @@ fun ApplicationTopBar(
         },
         actions = actions,
         title = {
-            Text(title)
+            Text(
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                text = title
+            )
         }
     )
 }

@@ -13,8 +13,9 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
-interface RedditClient {
+internal interface RedditClient {
     @FormUrlEncoded
     @POST("api/v1/access_token")
     suspend fun fetchAccessToken(
@@ -23,26 +24,32 @@ interface RedditClient {
         @Field("grant_type") grantType: String = "https://oauth.reddit.com/grants/installed_client"
     ) : TokenResponse
 
-    @GET("r/{subreddit}/{listingType}.json")
+    @GET("r/{subreddit}/{listingType}")
     suspend fun fetchPosts(
         @Path("subreddit") subreddit: String,
         @Path("listingType") listingType: String = ListingType.Hot.value,
         @Query("after") after: String? = null
     ) : PageResponse
 
-    @GET("{listingType}.json")
+    @GET("{listingType}")
     suspend fun fetchFrontPage(
         @Path("listingType") listingType: String = ListingType.Hot.value,
         @Query("after") after: String? = null
     ) : PageResponse
 
-    @GET("user/{username}.json")
+    @GET("user/{username}")
     suspend fun fetchUser(
         @Path("username") username: String
     )
 
-    @GET("r/{subreddit}/about.json")
+    @GET("r/{subreddit}/about")
     suspend fun fetchSubreddit(
         @Path("subreddit") subreddit: String
+    ) : SubredditWrapper
+
+    @GET("r/{subreddit}/comments/{postId}/_")
+    suspend fun fetchComments(
+        @Path("subreddit") subreddit: String,
+        @Path("postId") postId: String
     ) : SubredditWrapper
 }

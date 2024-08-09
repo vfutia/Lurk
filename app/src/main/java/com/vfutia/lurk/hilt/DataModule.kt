@@ -18,7 +18,7 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(
+    internal fun provideDatabase(
         @ApplicationContext context: Context,
     ): LurkDatabase {
         return Room.databaseBuilder(
@@ -29,5 +29,5 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideFavoriteDao(db: LurkDatabase) : FavoriteDao = db.favoriteDao()
+    internal fun provideFavoriteDao(db: LurkDatabase) : FavoriteDao = db.favoriteDao()
 }

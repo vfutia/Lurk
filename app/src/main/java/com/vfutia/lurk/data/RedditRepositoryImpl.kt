@@ -12,7 +12,7 @@ import com.vfutia.lurk.model.Subreddit
 import com.vfutia.lurk.model.TokenResponse
 import javax.inject.Inject
 
-class RedditRepositoryImpl @Inject constructor(
+internal class RedditRepositoryImpl @Inject constructor(
     private val redditClient: RedditClient,
     private val favoriteDao: FavoriteDao
 ) : RedditRepository {
@@ -48,6 +48,10 @@ class RedditRepositoryImpl @Inject constructor(
     override suspend fun getFavorites(): List<Favorite> = favoriteDao.getAll()
 
     override suspend fun isFavorite(subreddit: String): Boolean = favoriteDao.isFavorite(subreddit) != null
+
+//    override suspend fun fetchComments(subreddit: String, postId: String) {
+//        return redditClient.fetchComments(subreddit, postId)
+//    }
 
     override suspend fun fetchPosts(subreddit: String, listingType: ListingType, after: String?): PostPage {
         val content = redditClient.fetchPosts(subreddit, listingType.value, after)

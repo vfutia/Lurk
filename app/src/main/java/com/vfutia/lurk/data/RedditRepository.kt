@@ -18,4 +18,5 @@ interface RedditRepository {
     suspend fun deleteFavorite(subreddit: String): List<Favorite>
     suspend fun getFavorites() : List<Favorite>
     suspend fun isFavorite(subreddit: String): Boolean
+//    suspend fun fetchComments(subreddit: String, postId: String)
 }
