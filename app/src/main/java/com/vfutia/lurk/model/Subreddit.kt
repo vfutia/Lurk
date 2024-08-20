@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 class Subreddit (
     val displayNamePrefixed: String,
     val communityIcon: String? = null,
+    val showMediaPreview: Boolean = false,
     bannerBackgroundImage: String? = null,
     iconImage: String? = null,
     val subscribers: Int,

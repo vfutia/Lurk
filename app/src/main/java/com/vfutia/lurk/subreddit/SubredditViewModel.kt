@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,15 +23,17 @@ class SubredditViewModel @Inject constructor (
     private val _state = MutableStateFlow(SubredditState())
     val state: StateFlow<SubredditState> = _state.asStateFlow()
 
-    fun fetchSubreddit(subreddit: String) = viewModelScope.launch(Dispatchers.IO) {
-        val currentSubreddit = redditRepository.fetchSubreddit(subreddit)
+    fun fetchSubreddit(subreddit: String) = viewModelScope.launch(Dispatchers.Main) {
+        val currentSubreddit = withContext(Dispatchers.IO) {
+            redditRepository.fetchSubreddit(subreddit)
+        }
 
         _state.update { current -> current.copy(
             subreddit = currentSubreddit,
         )}
     }
 
-    fun fetchPage(subreddit: String?) = viewModelScope.launch(Dispatchers.IO) {
+    fun fetchPage(subreddit: String?) = viewModelScope.launch(Dispatchers.Main) {
         _state.update { current -> current.copy(
             isLoadingFirstLoadPage = current.posts.isEmpty(),
             isLoadingNextPage = current.posts.isNotEmpty(),
@@ -38,10 +41,12 @@ class SubredditViewModel @Inject constructor (
         )}
 
         try {
-            val page = if (subreddit == null) {
-                redditRepository.fetchFrontPage(listingType = ListingType.Hot, after = state.value.after)
-            } else {
-                redditRepository.fetchPosts(subreddit, after = state.value.after)
+            val page = withContext(Dispatchers.IO) {
+                if (subreddit == null) {
+                    redditRepository.fetchFrontPage(listingType = ListingType.Hot, after = state.value.after)
+                } else {
+                    redditRepository.fetchPosts(subreddit, after = state.value.after)
+                }
             }
 
             _state.update { current ->

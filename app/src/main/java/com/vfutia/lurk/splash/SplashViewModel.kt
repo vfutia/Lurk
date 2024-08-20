@@ -29,17 +29,19 @@ class SplashViewModel @Inject constructor (
     private val _state = MutableStateFlow(SplashState())
     val state: StateFlow<SplashState> = _state.asStateFlow()
 
-    suspend fun fetchAccessToken() = viewModelScope.async(Dispatchers.IO) {
+    suspend fun fetchAccessToken() = viewModelScope.async(Dispatchers.Main) {
         _state.update { current -> current.copy (
             hasError = false,
             fetchSuccess = false
         )}
 
         try {
-            redditRepository.fetchAccessToken(deviceId = UUID.randomUUID().toString()).apply {
-                sharedPreferences.putToken(accessToken)
-                _state.update { current -> current.copy(fetchSuccess = true) }
+            val response = withContext(Dispatchers.IO) {
+                redditRepository.fetchAccessToken(deviceId = UUID.randomUUID().toString())
             }
+
+            sharedPreferences.putToken(response.accessToken)
+            _state.update { current -> current.copy(fetchSuccess = true) }
         } catch (e: Exception) {
             _state.update { current -> current.copy(hasError = true) }
         }

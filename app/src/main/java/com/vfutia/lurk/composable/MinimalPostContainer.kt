@@ -46,6 +46,7 @@ import com.vfutia.lurk.ui.theme.Typography
 fun MinimalPostContainer(
     isFrontPage: Boolean = true,
     post: Post,
+    previewAllowed: Boolean,
     onSubredditClick: (String) -> Unit = { },
     onUsernameClick: () -> Unit = { },
     onPostClick: (Post) -> Unit = { }
@@ -192,7 +193,7 @@ fun MinimalPostContainer(
             .layoutId("title-spacer")
         )
 
-        if (post.thumbnail.isValidUrl()) {
+        if (previewAllowed && post.thumbnail.isValidUrl()) {
             AsyncImage(
                 modifier = Modifier
                     .layoutId("preview")
@@ -260,7 +261,7 @@ fun MinimalPostContainer(
 fun MinimalPostContainerPreview() {
     LurkTheme {
         Surface {
-            MinimalPostContainer(post = Post (
+            MinimalPostContainer(previewAllowed = true, post = Post (
                 id = "asdfasf",
                 title = "This is the title of the post",
                 author = "someguy",

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -74,14 +75,20 @@ fun PostContainer(modifier: Modifier, post: Post) {
 @Composable
 fun SelfPost (modifier: Modifier, post: Post) {
     Box(modifier = modifier) {
-        Text (
-            text = post.title ?: "",
-            style = Typography.headlineSmall,
-        )
+        LazyColumn {
+            item {
+                Text (
+                    text = post.title ?: "",
+                    style = Typography.titleLarge,
+                )
+            }
 
-        Text (
-            text = post.selftext ?: "",
-            style = Typography.bodyLarge,
-        )
+            item {
+                Text (
+                    text = post.selftext ?: "",
+                    style = Typography.bodyLarge,
+                )
+            }
+        }
     }
 }

@@ -5,5 +5,5 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Media (
-    val redditVideo: RedditVideo
+    val redditVideo: RedditVideo?
 ) : Parcelable

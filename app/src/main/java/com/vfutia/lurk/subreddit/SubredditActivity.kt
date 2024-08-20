@@ -3,6 +3,7 @@ package com.vfutia.lurk.subreddit
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Size
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
@@ -79,7 +80,13 @@ class SubredditActivity : BaseActivity() {
                     state = favoriteState,
                     onFavoriteClick = { newSubreddit -> startActivity(launchIntent(this@SubredditActivity, newSubreddit)) }
                 ),
-                actions = subreddit?.let { actions(favoriteViewModel, it, favoriteState) } ?: { }
+                actions = subreddit?.let {
+                    actions(favoriteState.favorites.contains(Favorite(subreddit)),
+                        it,
+                        favoriteViewModel::addFavorite,
+                        favoriteViewModel::deleteFavorite
+                    )
+                } ?: { }
             ) {
                 if (subredditState.isLoadingFirstLoadPage) {
                     Box (modifier = Modifier.fillMaxSize()) {
@@ -88,11 +95,15 @@ class SubredditActivity : BaseActivity() {
                 } else {
                     PostList(
                         subreddit = subreddit,
-                        viewModel = subredditViewModel,
-                        state = subredditState,
+                        bannerBackgroundImage = subredditState.subreddit?.bannerBackgroundImage,
+                        bannerSize = subredditState.subreddit?.bannerSize,
+                        nextPageLoading = subredditState.isLoadingNextPage,
+                        previewAllowed = subredditState.subreddit?.showMediaPreview ?: (subreddit == null), //show for front page
+                        posts = subredditState.posts,
                         onSubredditClick = { newSubreddit ->
                             startActivity(launchIntent(this, newSubreddit))
                         },
+                        fetchPage = subredditViewModel::fetchPage,
                         onPostClick = { post ->
                             startActivity(PostActivity.launchIntent(this, post))
                         }
@@ -126,9 +137,14 @@ private fun drawerSheet(state: FavoriteState, onFavoriteClick: (String) -> Unit)
 }
 
 @Composable
-private fun actions(viewModel: FavoriteViewModel, subreddit: String, state: FavoriteState): @Composable RowScope.() -> Unit = {
-    if (state.favorites.contains(Favorite(subreddit))) {
-        IconButton(onClick = { viewModel.deleteFavorite(subreddit) }) {
+private fun actions(
+    isFavorite: Boolean,
+    subreddit: String,
+    addFavorite: (String) -> Unit,
+    removeFavorite: (String) -> Unit
+): @Composable RowScope.() -> Unit = {
+    if (isFavorite) {
+        IconButton(onClick =  { removeFavorite(subreddit) }) {
             Icon(
                 imageVector = Icons.Filled.Favorite,
                 contentDescription = "Unfavorite subreddit",
@@ -136,7 +152,7 @@ private fun actions(viewModel: FavoriteViewModel, subreddit: String, state: Favo
             )
         }
     } else {
-        IconButton(onClick = { viewModel.addFavorite(subreddit) }) {
+        IconButton(onClick = { addFavorite(subreddit) }) {
             Icon(
                 imageVector = Icons.Outlined.FavoriteBorder,
                 contentDescription = "Favorite subreddit",
@@ -149,8 +165,12 @@ private fun actions(viewModel: FavoriteViewModel, subreddit: String, state: Favo
 @Composable
 private fun PostList(
     subreddit: String? = null,
-    viewModel: SubredditViewModel,
-    state: SubredditState,
+    bannerBackgroundImage: String? = null,
+    bannerSize: Size? = null,
+    nextPageLoading: Boolean,
+    posts: List<Post>,
+    previewAllowed: Boolean,
+    fetchPage: (String?) -> Unit,
     onSubredditClick: (String) -> Unit,
     onPostClick: (Post) -> Unit
 ) {
@@ -160,18 +180,17 @@ private fun PostList(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            state.subreddit?.let {
-                SubredditBanner(
-                    bannerUrl = it.bannerBackgroundImage,
-                    headerSize = it.bannerSize
-                )
-            }
+            SubredditBanner(
+                bannerUrl = bannerBackgroundImage,
+                headerSize = bannerSize ?: Size(0, 0)
+            )
         }
 
-        state.posts.forEach() { post ->
+        posts.forEach { post ->
             item {
                 MinimalPostContainer(
                     isFrontPage = subreddit == null,
+                    previewAllowed = previewAllowed,
                     onSubredditClick = onSubredditClick,
                     onPostClick = onPostClick,
                     post = post
@@ -184,7 +203,7 @@ private fun PostList(
             }
         }
 
-        if (state.isLoadingNextPage) {
+        if (nextPageLoading) {
             item {
                 Loader(modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))
@@ -194,7 +213,7 @@ private fun PostList(
 
         item {
             LaunchedEffect(!scrollState.canScrollForward) {
-                viewModel.fetchPage(subreddit)
+                fetchPage(subreddit)
             }
         }
     }
