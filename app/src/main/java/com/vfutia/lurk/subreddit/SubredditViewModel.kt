@@ -33,29 +33,40 @@ class SubredditViewModel @Inject constructor (
         )}
     }
 
-    fun fetchPage(subreddit: String?) = viewModelScope.launch(Dispatchers.Main) {
+    fun fetchPage(subreddit: String?, refresh: Boolean = false) = viewModelScope.launch(Dispatchers.Main) {
         _state.update { current -> current.copy(
             isLoadingFirstLoadPage = current.posts.isEmpty(),
             isLoadingNextPage = current.posts.isNotEmpty(),
-            hasLoadError = false
+            hasLoadError = false,
+            isRefreshing = refresh
         )}
 
         try {
             val page = withContext(Dispatchers.IO) {
-                if (subreddit == null) {
-                    redditRepository.fetchFrontPage(listingType = ListingType.Hot, after = state.value.after)
+                val after: String? = if (refresh) {
+                    null
                 } else {
-                    redditRepository.fetchPosts(subreddit, after = state.value.after)
+                    state.value.after
+                }
+
+                if (subreddit == null) {
+                    redditRepository.fetchFrontPage(listingType = ListingType.Hot, after = after)
+                } else {
+                    redditRepository.fetchPosts(subreddit, after = after)
                 }
             }
 
             _state.update { current ->
-                val updatedPosts = current.posts.toMutableList().apply { addAll(page.posts) }
+                val updatedPosts = current.posts.toMutableList().apply {
+                    if (refresh) { clear() }
+                    addAll(page.posts)
+                }
 
                 current.copy(
                     isLoadingFirstLoadPage = false,
                     isLoadingNextPage = false,
                     hasLoadError = false,
+                    isRefreshing = false,
                     posts = updatedPosts,
                     after = page.after
                 )

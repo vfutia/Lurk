@@ -16,10 +16,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +47,7 @@ import com.vfutia.lurk.setContentAndStatusBar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
+@OptIn(ExperimentalMaterial3Api::class)
 class SubredditActivity : BaseActivity() {
     companion object {
         const val KEY_SUBREDDIT = "subreddit"
@@ -73,6 +77,8 @@ class SubredditActivity : BaseActivity() {
             val favoriteState: FavoriteState by favoriteViewModel.state.collectAsState()
             val title = subredditState.subreddit?.displayNamePrefixed ?: getString(R.string.app_name)
 
+            val refreshState = rememberPullToRefreshState()
+
             BaseScreen(
                 title = title,
                 allowBackNavigation = subreddit != null,
@@ -93,21 +99,27 @@ class SubredditActivity : BaseActivity() {
                         Loader(modifier = Modifier.align(Alignment.Center))
                     }
                 } else {
-                    PostList(
-                        subreddit = subreddit,
-                        bannerBackgroundImage = subredditState.subreddit?.bannerBackgroundImage,
-                        bannerSize = subredditState.subreddit?.bannerSize,
-                        nextPageLoading = subredditState.isLoadingNextPage,
-                        previewAllowed = subredditState.subreddit?.showMediaPreview ?: (subreddit == null), //show for front page
-                        posts = subredditState.posts,
-                        onSubredditClick = { newSubreddit ->
-                            startActivity(launchIntent(this, newSubreddit))
-                        },
-                        fetchPage = subredditViewModel::fetchPage,
-                        onPostClick = { post ->
-                            startActivity(PostActivity.launchIntent(this, post))
-                        }
-                    )
+                    PullToRefreshBox(
+                        state = refreshState,
+                        isRefreshing = subredditState.isRefreshing,
+                        onRefresh = { subredditViewModel.fetchPage(subreddit, refresh = true) }
+                    ) {
+                        PostList(
+                            subreddit = subreddit,
+                            bannerBackgroundImage = subredditState.subreddit?.bannerBackgroundImage,
+                            bannerSize = subredditState.subreddit?.bannerSize,
+                            nextPageLoading = subredditState.isLoadingNextPage,
+                            previewAllowed = subredditState.subreddit?.showMediaPreview ?: (subreddit == null), //show for front page
+                            posts = subredditState.posts,
+                            onSubredditClick = { newSubreddit ->
+                                startActivity(launchIntent(this@SubredditActivity, newSubreddit))
+                            },
+                            fetchPage = subredditViewModel::fetchPage,
+                            onPostClick = { post ->
+                                startActivity(PostActivity.launchIntent(this@SubredditActivity, post))
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -164,6 +176,7 @@ private fun actions(
 
 @Composable
 private fun PostList(
+    modifier: Modifier = Modifier,
     subreddit: String? = null,
     bannerBackgroundImage: String? = null,
     bannerSize: Size? = null,
@@ -177,6 +190,7 @@ private fun PostList(
     val scrollState = rememberScrollState()
 
     LazyColumn (
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {

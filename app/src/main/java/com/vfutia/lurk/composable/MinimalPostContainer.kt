@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -70,6 +71,7 @@ fun MinimalPostContainer(
         val author = createRefFor("author")
         val subreddit = createRefFor("subreddit")
         val title = createRefFor("title")
+        val body = createRefFor("body")
         val preview = createRefFor("preview")
         val upVoteIcon = createRefFor("upvote-icon")
         val upVotes = createRefFor("upvotes")
@@ -106,6 +108,14 @@ fun MinimalPostContainer(
             width = Dimension.fillToConstraints
             top.linkTo(titleSpacer.bottom)
             start.linkTo(preview.end)
+            bottom.linkTo(body.top)
+            end.linkTo(parent.end, margin = titleMargin)
+        }
+
+        constrain(body) {
+            width = Dimension.fillToConstraints
+            top.linkTo(title.bottom, margin = titleMargin)
+            start.linkTo(title.start)
             bottom.linkTo(iconSpacer.top)
             end.linkTo(parent.end, margin = titleMargin)
         }
@@ -118,9 +128,8 @@ fun MinimalPostContainer(
             end.linkTo(title.start, margin = titleMargin)
         }
 
-
         constrain(iconSpacer) {
-            top.linkTo(title.bottom)
+            top.linkTo(body.bottom)
             start.linkTo(parent.start)
             end.linkTo(parent.end)
         }
@@ -207,9 +216,23 @@ fun MinimalPostContainer(
 
         Text(
             modifier = Modifier
+                .layoutId("body")
+                .fillMaxWidth(),
+            style = Typography.bodyMedium,
+            maxLines = 4,
+            overflow = TextOverflow.Ellipsis,
+            text = post.selftext ?: ""
+        )
+
+        Text(
+            modifier = Modifier
                 .layoutId("title")
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = thumbnailSize),
+                .apply {
+                   if (previewAllowed && post.thumbnail.isValidUrl()) {
+                       defaultMinSize(minHeight = thumbnailSize)
+                   }
+                },
             style = Typography.titleMedium,
             text = post.title
         )
