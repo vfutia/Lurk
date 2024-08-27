@@ -30,6 +30,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.vfutia.lurk.BaseActivity
 import com.vfutia.lurk.R
 import com.vfutia.lurk.composable.BaseScreen
@@ -42,6 +46,7 @@ import com.vfutia.lurk.favorite.FavoriteState
 import com.vfutia.lurk.favorite.FavoriteViewModel
 import com.vfutia.lurk.model.Favorite
 import com.vfutia.lurk.model.Post
+import com.vfutia.lurk.model.PostWrapper
 import com.vfutia.lurk.post.PostActivity
 import com.vfutia.lurk.setContentAndStatusBar
 import dagger.hilt.android.AndroidEntryPoint
@@ -67,7 +72,6 @@ class SubredditActivity : BaseActivity() {
 
         val subreddit = intent.extras?.getString(KEY_SUBREDDIT)
 
-        subredditViewModel.fetchPage(subreddit)
         favoriteViewModel.fetchFavorites()
 
         subreddit?.let { subredditViewModel.fetchSubreddit(subreddit) }
@@ -78,6 +82,7 @@ class SubredditActivity : BaseActivity() {
             val title = subredditState.subreddit?.displayNamePrefixed ?: getString(R.string.app_name)
 
             val refreshState = rememberPullToRefreshState()
+            val posts = subredditViewModel.fetchPage(subreddit).collectAsLazyPagingItems()
 
             BaseScreen(
                 title = title,
@@ -94,7 +99,7 @@ class SubredditActivity : BaseActivity() {
                     )
                 } ?: { }
             ) {
-                if (subredditState.isLoadingFirstLoadPage) {
+                if (posts.loadState.refresh == LoadState.Loading) {
                     Box (modifier = Modifier.fillMaxSize()) {
                         Loader(modifier = Modifier.align(Alignment.Center))
                     }
@@ -108,9 +113,8 @@ class SubredditActivity : BaseActivity() {
                             subreddit = subreddit,
                             bannerBackgroundImage = subredditState.subreddit?.bannerBackgroundImage,
                             bannerSize = subredditState.subreddit?.bannerSize,
-                            nextPageLoading = subredditState.isLoadingNextPage,
                             previewAllowed = subredditState.subreddit?.showMediaPreview ?: (subreddit == null), //show for front page
-                            posts = subredditState.posts,
+                            posts = posts,
                             onSubredditClick = { newSubreddit ->
                                 startActivity(launchIntent(this@SubredditActivity, newSubreddit))
                             },
@@ -180,8 +184,7 @@ private fun PostList(
     subreddit: String? = null,
     bannerBackgroundImage: String? = null,
     bannerSize: Size? = null,
-    nextPageLoading: Boolean,
-    posts: List<Post>,
+    posts: LazyPagingItems<PostWrapper>,
     previewAllowed: Boolean,
     fetchPage: (String?) -> Unit,
     onSubredditClick: (String) -> Unit,
@@ -200,24 +203,25 @@ private fun PostList(
             )
         }
 
-        posts.forEach { post ->
-            item {
-                MinimalPostContainer(
-                    isFrontPage = subreddit == null,
-                    previewAllowed = previewAllowed,
-                    onSubredditClick = onSubredditClick,
-                    onPostClick = onPostClick,
-                    post = post
-                )
+        items (
+            count = posts.itemCount,
+            key = posts.itemKey { it.data.id }
+        ) { index ->
+            MinimalPostContainer(
+                isFrontPage = subreddit == null,
+                previewAllowed = previewAllowed,
+                onSubredditClick = onSubredditClick,
+                onPostClick = onPostClick,
+                post = posts[index]?.data!!
+            )
 
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = dimensionResource(id = R.dimen.divider_thickness)
-                )
-            }
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                thickness = dimensionResource(id = R.dimen.divider_thickness)
+            )
         }
 
-        if (nextPageLoading) {
+        if (posts.loadState.append == LoadState.Loading) {
             item {
                 Loader(modifier = Modifier
                     .padding(dimensionResource(id = R.dimen.padding_small))

@@ -2,16 +2,11 @@ package com.vfutia.lurk.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val JetGreen = Color(0xFF39393A)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val PrimaryDark = Color(0xFF6A4C93)
 
-val MyrtleGreen = Color(0xFF297373)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val PrimaryLight = Color(0xFF1982C4)
 
 val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
-val Coral = Color(0xFFFF8552)
-
-val Stickied = Color(0xFFFFFEE0)
+val Secondary = Color(0xFFffCA3A)
+val Tertiary = Color(0xFFFF595E)

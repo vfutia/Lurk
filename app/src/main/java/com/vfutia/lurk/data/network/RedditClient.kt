@@ -15,7 +15,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 
-internal interface RedditClient {
+interface RedditClient {
     @FormUrlEncoded
     @POST("api/v1/access_token")
     suspend fun fetchAccessToken(
