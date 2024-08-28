@@ -74,6 +74,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.security.crypto)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)

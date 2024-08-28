@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.security.crypto.EncryptedSharedPreferences
 import com.vfutia.lurk.data.RedditRepository
 import com.vfutia.lurk.data.network.RedditClient
 import com.vfutia.lurk.extension.putToken
@@ -23,7 +24,7 @@ import kotlin.io.path.Path
 @HiltViewModel
 class SplashViewModel @Inject constructor (
     private val redditRepository: RedditRepository,
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: EncryptedSharedPreferences
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SplashState())

@@ -73,7 +73,7 @@ class SplashActivity : BaseActivity() {
     }
 
     private fun fetchAccessToken() {
-        scope.launch { withContext(Dispatchers.IO) { viewModel.fetchAccessToken() }.await() }
+        scope.launch { viewModel.fetchAccessToken() }
     }
 
     private fun proceedToActivity() {

@@ -2,6 +2,7 @@ package com.vfutia.lurk.data.network
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
 import com.vfutia.lurk.BuildConfig
 import com.vfutia.lurk.R
 import com.vfutia.lurk.extension.getToken
@@ -11,7 +12,7 @@ import okhttp3.Response
 
 class AuthenticationInterceptor(
     @ApplicationContext private val context: Context,
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: EncryptedSharedPreferences
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()

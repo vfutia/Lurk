@@ -1,7 +1,7 @@
 package com.vfutia.lurk.hilt
 
 import android.content.Context
-import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
@@ -32,7 +32,7 @@ abstract class NetworkModule {
         @Provides
         fun provideAuthenticationInterceptor(
             @ApplicationContext context: Context,
-            sharedPreferences: SharedPreferences
+            sharedPreferences: EncryptedSharedPreferences
         ): AuthenticationInterceptor = AuthenticationInterceptor(context, sharedPreferences)
 
         @Provides
