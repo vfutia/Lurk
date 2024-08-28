@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 interface RedditRepository {
     suspend fun fetchAccessToken(deviceId: String): TokenResponse
     suspend fun fetchUser(username: String)
-    fun fetchPosts(subreddit: String? = null, refresh: Boolean = false, listingType: ListingType = ListingType.Hot): Flow<PagingData<PostWrapper>>
+    fun fetchPosts(subreddit: String? = null, listingType: ListingType = ListingType.Hot): Flow<PagingData<PostWrapper>>
     suspend fun fetchSubreddit(subreddit: String): Subreddit
     suspend fun addFavorite(subreddit: String): List<Favorite>
     suspend fun deleteFavorite(subreddit: String): List<Favorite>

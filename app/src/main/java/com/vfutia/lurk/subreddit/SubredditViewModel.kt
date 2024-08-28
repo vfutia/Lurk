@@ -37,5 +37,5 @@ class SubredditViewModel @Inject constructor (
         )}
     }
 
-    fun fetchPage(subreddit: String?, refresh: Boolean = false) = redditRepository.fetchPosts(subreddit, refresh).cachedIn(viewModelScope)
+    fun fetchPage(subreddit: String?) = redditRepository.fetchPosts(subreddit).cachedIn(viewModelScope)
 }

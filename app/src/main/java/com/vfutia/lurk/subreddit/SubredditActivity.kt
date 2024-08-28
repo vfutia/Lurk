@@ -107,7 +107,7 @@ class SubredditActivity : BaseActivity() {
                     PullToRefreshBox(
                         state = refreshState,
                         isRefreshing = subredditState.isRefreshing,
-                        onRefresh = { subredditViewModel.fetchPage(subreddit, refresh = true) }
+                        onRefresh = { posts.refresh() }
                     ) {
                         PostList(
                             subreddit = subreddit,
@@ -230,7 +230,7 @@ private fun PostList(
         }
 
         item {
-            LaunchedEffect(!scrollState.canScrollForward) {
+            LaunchedEffect(!scrollState.canScrollForward && !posts.loadState.append.endOfPaginationReached) {
                 fetchPage(subreddit)
             }
         }

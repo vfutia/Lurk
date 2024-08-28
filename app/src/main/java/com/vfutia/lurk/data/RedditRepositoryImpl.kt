@@ -53,7 +53,7 @@ internal class RedditRepositoryImpl @Inject constructor(
 //        return redditClient.fetchComments(subreddit, postId)
 //    }
 
-    override fun fetchPosts(subreddit: String?, refresh: Boolean, listingType: ListingType): Flow<PagingData<PostWrapper>> {
+    override fun fetchPosts(subreddit: String?, listingType: ListingType): Flow<PagingData<PostWrapper>> {
         return if (!::pagingSource.isInitialized) {
             pagingSource = Pager(PagingConfig(pageSize = 20)) {
                 PostPagingSource(redditClient, subreddit, listingType)
