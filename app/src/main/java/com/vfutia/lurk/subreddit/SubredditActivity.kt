@@ -90,88 +90,85 @@ class SubredditActivity : BaseActivity() {
         setContentAndStatusBar {
             val refreshState = rememberPullToRefreshState()
             val posts = subredditViewModel.fetchPage(subreddit).collectAsLazyPagingItems()
+            val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+            val snackbarHostState = remember { SnackbarHostState() }
+            val scope = rememberCoroutineScope()
+            val isFrontPage = subreddit == null
 
-            LurkTheme {
-                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                val snackbarHostState = remember { SnackbarHostState() }
-                val scope = rememberCoroutineScope()
-                val isFrontPage = subreddit == null
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    val favoriteState: FavoriteState by favoriteViewModel.state.collectAsState()
+                    ModalDrawerSheet(content = drawerSheet(
+                        onFavoriteClick = { newSubreddit ->
+                            startActivity(launchIntent(this@SubredditActivity, newSubreddit))
+                            scope.launch { drawerState.close() }
+                        },
+                        state = favoriteState
+                    ))
+                },
+            ) {
+                val subredditState: SubredditState by subredditViewModel.state.collectAsState()
 
-                ModalNavigationDrawer(
-                    drawerState = drawerState,
-                    drawerContent = {
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
                         val favoriteState: FavoriteState by favoriteViewModel.state.collectAsState()
-                        ModalDrawerSheet(content = drawerSheet(
-                            onFavoriteClick = { newSubreddit ->
-                                startActivity(launchIntent(this@SubredditActivity, newSubreddit))
-                                scope.launch { drawerState.close() }
-                          },
-                            state = favoriteState
-                        ))
-                    },
-                ) {
-                    val subredditState: SubredditState by subredditViewModel.state.collectAsState()
+                        val title = subredditState.subreddit?.displayNamePrefixed ?: getString(R.string.app_name)
 
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        topBar = {
-                            val favoriteState: FavoriteState by favoriteViewModel.state.collectAsState()
-                            val title = subredditState.subreddit?.displayNamePrefixed ?: getString(R.string.app_name)
-
-                            ApplicationTopBar(
-                                title = title,
-                                allowBackNavigation = !isFrontPage,
-                                showMenu = isFrontPage,
-                                actions = if (!isFrontPage) {
-                                    actions(
-                                        isFavorite = subreddit?.let { favoriteState.favorites.contains(Favorite(it)) } == true,
-                                        subreddit = subreddit ?: "",
-                                        addFavorite = favoriteViewModel::addFavorite,
-                                        removeFavorite = favoriteViewModel::deleteFavorite
-                                    )
-                                } else {
-                                    { }
-                                },
-                                onBackClicked = { onBackPressedDispatcher.onBackPressed() },
-                                onMenuClicked = {
-                                    scope.launch {
-                                        drawerState.apply {
-                                            if (isClosed) open() else close()
-                                        }
+                        ApplicationTopBar(
+                            title = title,
+                            allowBackNavigation = !isFrontPage,
+                            showMenu = isFrontPage,
+                            actions = if (!isFrontPage) {
+                                actions(
+                                    isFavorite = subreddit?.let { favoriteState.favorites.contains(Favorite(it)) } == true,
+                                    subreddit = subreddit ?: "",
+                                    addFavorite = favoriteViewModel::addFavorite,
+                                    removeFavorite = favoriteViewModel::deleteFavorite
+                                )
+                            } else {
+                                { }
+                            },
+                            onBackClicked = { onBackPressedDispatcher.onBackPressed() },
+                            onMenuClicked = {
+                                scope.launch {
+                                    drawerState.apply {
+                                        if (isClosed) open() else close()
                                     }
                                 }
-                            )
-                        },
-                        snackbarHost = {
-                            SnackbarHost(hostState = snackbarHostState)
-                        }
-                    ) { innerPadding ->
-                        Box(modifier = Modifier.padding(innerPadding)) {
-                            if (posts.loadState.refresh == LoadState.Loading) {
-                                Box (modifier = Modifier.fillMaxSize()) {
-                                    Loader(modifier = Modifier.align(Alignment.Center))
-                                }
-                            } else {
-                                PullToRefreshBox(
-                                    state = refreshState,
-                                    isRefreshing = subredditState.isRefreshing,
-                                    onRefresh = { posts.refresh() }
-                                ) {
-                                    PostList(
-                                        subreddit = subreddit,
-                                        bannerBackgroundImage = subredditState.subreddit?.bannerBackgroundImage,
-                                        bannerSize = subredditState.subreddit?.bannerSize,
-                                        previewAllowed = subredditState.subreddit?.showMediaPreview ?: (subreddit == null), //show for front page
-                                        posts = posts,
-                                        onSubredditClick = { newSubreddit ->
-                                            startActivity(launchIntent(this@SubredditActivity, newSubreddit))
-                                        },
-                                        fetchPage = subredditViewModel::fetchPage,
-                                        onPostClick = { post ->
-                                            startActivity(PostActivity.launchIntent(this@SubredditActivity, post))
-                                        }
-                                    )
-                                }
+                            }
+                        )
+                    },
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarHostState)
+                    }
+                ) { innerPadding ->
+                    Box(modifier = Modifier.padding(innerPadding)) {
+                        if (posts.loadState.refresh == LoadState.Loading) {
+                            Box (modifier = Modifier.fillMaxSize()) {
+                                Loader(modifier = Modifier.align(Alignment.Center))
+                            }
+                        } else {
+                            PullToRefreshBox(
+                                state = refreshState,
+                                isRefreshing = subredditState.isRefreshing,
+                                onRefresh = { posts.refresh() }
+                            ) {
+                                PostList(
+                                    subreddit = subreddit,
+                                    bannerBackgroundImage = subredditState.subreddit?.bannerBackgroundImage,
+                                    bannerSize = subredditState.subreddit?.bannerSize,
+                                    previewAllowed = subredditState.subreddit?.showMediaPreview ?: (subreddit == null), //show for front page
+                                    posts = posts,
+                                    onSubredditClick = { newSubreddit ->
+                                        startActivity(launchIntent(this@SubredditActivity, newSubreddit))
+                                    },
+                                    fetchPage = subredditViewModel::fetchPage,
+                                    onPostClick = { post ->
+                                        startActivity(PostActivity.launchIntent(this@SubredditActivity, post))
+                                    }
+                                )
                             }
                         }
                     }

@@ -6,19 +6,23 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.vfutia.lurk.BaseActivity
 import com.vfutia.lurk.R
-import com.vfutia.lurk.composable.BaseScreen
+import com.vfutia.lurk.composable.ApplicationTopBar
 import com.vfutia.lurk.composable.WebViewComposable
 import com.vfutia.lurk.model.Post
 import com.vfutia.lurk.setContentAndStatusBar
+import com.vfutia.lurk.ui.theme.LurkTheme
 import com.vfutia.lurk.ui.theme.Typography
 
 class PostActivity : BaseActivity() {
@@ -43,9 +47,24 @@ class PostActivity : BaseActivity() {
             ?: throw IllegalArgumentException("post is null")
 
         setContentAndStatusBar {
-            BaseScreen(title = post.title) {
+            val snackbarHostState = remember { SnackbarHostState() }
+
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = {
+                    ApplicationTopBar(
+                        title = post.title,
+                        onBackClicked = { onBackPressedDispatcher.onBackPressed() },
+                    )
+                },
+                snackbarHost = {
+                    SnackbarHost(hostState = snackbarHostState)
+                }
+            ) { innerPadding ->
                 PostContainer(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                     post = post
                 )
             }
