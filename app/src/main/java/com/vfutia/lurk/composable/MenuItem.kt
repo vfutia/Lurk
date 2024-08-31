@@ -1,6 +1,7 @@
 package com.vfutia.lurk.composable
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,12 +19,14 @@ fun MenuItem (
     subreddit: String,
     onFavoriteClick: (String) -> Unit
 ) {
-    Text(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(dimensionResource(id = R.dimen.padding_medium))
-            .clickable { onFavoriteClick(subreddit) },
-        text = "r/${subreddit}",
-        style = Typography.labelMedium,
-    )
+    Box (modifier = Modifier.clickable { onFavoriteClick(subreddit) }
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(dimensionResource(id = R.dimen.padding_medium))
+                .fillMaxSize(),
+            text = "r/${subreddit}",
+            style = Typography.labelMedium,
+        )
+    }
 }
